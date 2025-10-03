@@ -66,8 +66,8 @@ orange_palette = {
     'Total Load': '#FD5108',       # Dark orange
     'Sintering': '#5C6975',
     'Pelletizing': '#FF7216',
-    'DRI': '#FFA07A',
-    'BF': '#FF8C42'
+    'DRI': '#0308DB',
+    'BF': '#D2990C'
 }
 
 # Plotting
