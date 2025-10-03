@@ -123,7 +123,7 @@ if selected_unit:
     equipment_data = {eq: np.random.normal(loc=40, scale=10, size=data_length) for eq in equipment_list}
     df_eq = pd.DataFrame(equipment_data, index=time_index)
 
-    eq_col1, eq_col2 = st.columns([3, 1])
+    eq_col1, eq_col2 = st.columns([2.5, 1.5])
     with eq_col1:
         fig2, ax2 = plt.subplots(figsize=(10, 5))
         for eq in equipment_list:
