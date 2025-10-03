@@ -58,8 +58,18 @@ real_power = df_filtered['Total Load'].mean()
 apparent_power = real_power + np.random.normal(loc=20, scale=5)
 power_factor = round(real_power / apparent_power, 2)
 
-# Display Power Factor card above chart
-st.markdown(f"<div style='text-align:right; font-size:20px; margin-bottom:20px;'>⚡ <b>Power Factor:</b> {power_factor}</div>", unsafe_allow_html=True)
+
+# Display Power Factor card above chart with bold text and light orange background
+st.markdown(
+    f"""
+    <div style='text-align:right; font-size:20px; margin-bottom:20px;
+                background-color:#FFE5CC; padding:10px; border-radius:8px;'>
+        ⚡ <b>Power Factor:</b> <b>{power_factor}</b>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # PwC-style orange color palette
 orange_palette = {
