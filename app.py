@@ -10,7 +10,7 @@ st.set_page_config(page_title="Load Profile Chart", layout="wide")
 # Title
 st.markdown("<h1 style='text-align: center;'>🔧 Load Profile Chart - Rashmi Metaliks</h1>", unsafe_allow_html=True)
 
-# Sidebar filters (aligned to left)
+# Sidebar filters
 with st.sidebar:
     st.header("🔍 Filters")
     selected_date = st.date_input("Select Date", datetime.today())
@@ -49,49 +49,43 @@ df_filtered = df[selected_departments]
 df_filtered['Total Load'] = df_filtered.sum(axis=1)
 idle_baseline = df_filtered['Total Load'].min() * 0.95
 
-# Identify peak demand spikes and valleys
-peak_threshold = np.percentile(df_filtered['Total Load'], 90)
-valley_threshold = np.percentile(df_filtered['Total Load'], 10)
-df_filtered['Peak'] = df_filtered['Total Load'] > peak_threshold
-df_filtered['Valley'] = df_filtered['Total Load'] < valley_threshold
+# Identify top 3 peaks and bottom 3 valleys
+peak_indices = df_filtered['Total Load'].nlargest(3).index
+valley_indices = df_filtered['Total Load'].nsmallest(3).index
 
 # Calculate Power Factor (simulated)
 real_power = df_filtered['Total Load'].mean()
 apparent_power = real_power + np.random.normal(loc=20, scale=5)
 power_factor = round(real_power / apparent_power, 2)
 
-# Layout with columns: filters on left, chart center, power factor right
-col1, col2, col3 = st.columns([1, 6, 1])
+# Display Power Factor card above chart
+st.markdown(f"<div style='text-align:right; font-size:20px; margin-bottom:20px;'>⚡ <b>Power Factor:</b> {power_factor}</div>", unsafe_allow_html=True)
 
-with col3:
-    st.metric(label="⚡ Power Factor", value=f"{power_factor}")
+# Plotting
+fig, ax = plt.subplots(figsize=(14, 7))
+ax.plot(df_filtered.index, df_filtered['Total Load'], label='Total Load', color='blue', linewidth=2)
 
-with col2:
-    # Plotting
-    fig, ax = plt.subplots(figsize=(14, 7))
-    ax.plot(df_filtered.index, df_filtered['Total Load'], label='Total Load', color='blue', linewidth=2)
+# Fill idle load baseline
+ax.fill_between(df_filtered.index, 0, idle_baseline, color='gray', alpha=0.3, label='Idle Load Baseline')
 
-    # Fill idle load baseline
-    ax.fill_between(df_filtered.index, 0, idle_baseline, color='gray', alpha=0.3, label='Idle Load Baseline')
+# Highlight top 3 peaks and bottom 3 valleys
+ax.scatter(peak_indices, df_filtered.loc[peak_indices, 'Total Load'], color='red', label='Peak Points', zorder=5, s=60)
+ax.scatter(valley_indices, df_filtered.loc[valley_indices, 'Total Load'], color='red', label='Valley Points', zorder=5, s=60)
 
-    # Highlight peak and valley demand spikes
-    ax.scatter(df_filtered.index[df_filtered['Peak']], df_filtered['Total Load'][df_filtered['Peak']],
-               color='red', label='Peak Demand', zorder=5)
-    ax.scatter(df_filtered.index[df_filtered['Valley']], df_filtered['Total Load'][df_filtered['Valley']],
-               color='green', label='Valley Demand', zorder=5)
+# Add individual process lines
+for dept in selected_departments:
+    ax.plot(df_filtered.index, df_filtered[dept], label=dept, linestyle='--', alpha=0.6)
 
-    # Add individual process lines with markers
-    for dept in selected_departments:
-        ax.plot(df_filtered.index, df_filtered[dept], label=dept, linestyle='--', alpha=0.6, marker='o', markersize=4)
+# Formatting
+ax.set_title(f'Load Profile on {selected_date.strftime("%d %b")} ({start_hour}:00 to {end_hour}:00)', fontsize=16)
+ax.set_xlabel('Time of Day')
+ax.set_ylabel('Power Consumption (kW)')
+ax.grid(True, linestyle='--', alpha=0.5)
+ax.set_xticks(df_filtered.index[::4])
+ax.set_xticklabels([ts.strftime('%d %b (%H:%M)') for ts in df_filtered.index[::4]], rotation=45)
 
-    # Formatting
-    ax.set_title(f'Load Profile on {selected_date.strftime("%d %b")} ({start_hour}:00 to {end_hour}:00)', fontsize=16)
-    ax.set_xlabel('Time of Day')
-    ax.set_ylabel('Power Consumption (kW)')
-    ax.grid(True, linestyle='--', alpha=0.5)
-    ax.legend(loc='upper left')
-    ax.set_xticks(df_filtered.index[::4])
-    ax.set_xticklabels([ts.strftime('%d %b (%H:%M)') for ts in df_filtered.index[::4]], rotation=45)
+# Move legend to the left outside the chart
+ax.legend(loc='center left', bbox_to_anchor=(-0.15, 0.5))
 
-    # Display the chart
-    st.pyplot(fig)
+# Display the chart
+st.pyplot(fig)
