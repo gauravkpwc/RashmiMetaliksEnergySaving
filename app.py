@@ -49,9 +49,9 @@ df_filtered = df[selected_departments]
 df_filtered['Total Load'] = df_filtered.sum(axis=1)
 idle_baseline = df_filtered['Total Load'].min() * 0.95
 
-# Identify top 3 peaks and bottom 3 valleys
-peak_indices = df_filtered['Total Load'].nlargest(3).index
-valley_indices = df_filtered['Total Load'].nsmallest(3).index
+# Identify top 3 peaks and bottom 3 valleys for total load
+peak_indices_total = df_filtered['Total Load'].nlargest(3).index
+valley_indices_total = df_filtered['Total Load'].nsmallest(3).index
 
 # Calculate Power Factor (simulated)
 real_power = df_filtered['Total Load'].mean()
@@ -68,13 +68,17 @@ ax.plot(df_filtered.index, df_filtered['Total Load'], label='Total Load', color=
 # Fill idle load baseline
 ax.fill_between(df_filtered.index, 0, idle_baseline, color='gray', alpha=0.3, label='Idle Load Baseline')
 
-# Highlight top 3 peaks and bottom 3 valleys
-ax.scatter(peak_indices, df_filtered.loc[peak_indices, 'Total Load'], color='red', label='Peak Points', zorder=5, s=60)
-ax.scatter(valley_indices, df_filtered.loc[valley_indices, 'Total Load'], color='red', label='Valley Points', zorder=5, s=60)
+# Highlight top 3 peaks and bottom 3 valleys for total load
+ax.scatter(peak_indices_total, df_filtered.loc[peak_indices_total, 'Total Load'], color='red', label='Total Load Peaks', zorder=5, s=60)
+ax.scatter(valley_indices_total, df_filtered.loc[valley_indices_total, 'Total Load'], color='red', label='Total Load Valleys', zorder=5, s=60)
 
-# Add individual process lines
+# Add individual process lines and highlight their peaks/valleys
 for dept in selected_departments:
     ax.plot(df_filtered.index, df_filtered[dept], label=dept, linestyle='--', alpha=0.6)
+    peak_indices = df_filtered[dept].nlargest(3).index
+    valley_indices = df_filtered[dept].nsmallest(3).index
+    ax.scatter(peak_indices, df_filtered.loc[peak_indices, dept], color='red', zorder=5, s=40)
+    ax.scatter(valley_indices, df_filtered.loc[valley_indices, dept], color='red', zorder=5, s=40)
 
 # Formatting
 ax.set_title(f'Load Profile on {selected_date.strftime("%d %b")} ({start_hour}:00 to {end_hour}:00)', fontsize=16)
@@ -84,8 +88,8 @@ ax.grid(True, linestyle='--', alpha=0.5)
 ax.set_xticks(df_filtered.index[::4])
 ax.set_xticklabels([ts.strftime('%d %b (%H:%M)') for ts in df_filtered.index[::4]], rotation=45)
 
-# Move legend to the left outside the chart
-ax.legend(loc='center left', bbox_to_anchor=(-0.15, 0.5))
+# Keep legend inside chart area
+ax.legend(loc='upper left')
 
 # Display the chart
 st.pyplot(fig)
