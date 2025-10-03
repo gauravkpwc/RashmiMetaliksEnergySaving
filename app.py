@@ -63,9 +63,9 @@ st.markdown(f"<div style='text-align:right; font-size:20px; margin-bottom:20px;'
 
 # PwC-style orange color palette
 orange_palette = {
-    'Total Load': '#D75A00',       # Dark orange
-    'Sintering': '#F28E2B',
-    'Pelletizing': '#FFBE7D',
+    'Total Load': '#FD5108',       # Dark orange
+    'Sintering': '#5C6975',
+    'Pelletizing': '#FF7216',
     'DRI': '#FFA07A',
     'BF': '#FF8C42'
 }
