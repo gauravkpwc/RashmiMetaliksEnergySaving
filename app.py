@@ -25,8 +25,11 @@ end_time = datetime.combine(selected_date, datetime.min.time()) + timedelta(hour
 time_index = pd.date_range(start=start_time, end=end_time, freq='15T')
 data_length = len(time_index)
 
+# Seed based on selected date to regenerate data
+seed_value = int(selected_date.strftime("%Y%m%d"))
+np.random.seed(seed_value)
+
 # Simulated power consumption data
-np.random.seed(42)
 sintering = np.random.normal(loc=180, scale=20, size=data_length)
 pelletizing = np.random.normal(loc=150, scale=15, size=data_length)
 dri = np.random.normal(loc=200, scale=25, size=data_length)
@@ -123,8 +126,9 @@ if selected_unit:
 
     st.markdown(f"<h3 style='text-align: center;'>🔍 Equipment-wise Load Profile - {selected_unit}</h3>", unsafe_allow_html=True)
 
-    # Simulate equipment data dynamically
-    np.random.seed(42)
+    # Seed based on date and unit to regenerate equipment data
+    seed_eq = int(selected_date.strftime("%Y%m%d")) + hash(selected_unit) % 1000
+    np.random.seed(seed_eq)
     equipment_data = {eq: np.random.normal(loc=40, scale=10, size=data_length) for eq in equipment_list}
     df_eq = pd.DataFrame(equipment_data, index=time_index)
 
