@@ -23,10 +23,10 @@ with st.sidebar:
 start_time = datetime.combine(selected_date, datetime.min.time()) + timedelta(hours=start_hour)
 end_time = datetime.combine(selected_date, datetime.min.time()) + timedelta(hours=end_hour)
 time_index = pd.date_range(start=start_time, end=end_time, freq='15T')
+data_length = len(time_index)
 
 # Simulated power consumption data
 np.random.seed(42)
-data_length = len(time_index)
 sintering = np.random.normal(loc=180, scale=20, size=data_length)
 pelletizing = np.random.normal(loc=150, scale=15, size=data_length)
 dri = np.random.normal(loc=200, scale=25, size=data_length)
@@ -123,14 +123,25 @@ if selected_unit:
     equipment_data = {eq: np.random.normal(loc=40, scale=10, size=data_length) for eq in equipment_list}
     df_eq = pd.DataFrame(equipment_data, index=time_index)
 
-    fig2, ax2 = plt.subplots(figsize=(14, 6))
-    for eq in equipment_list:
-        ax2.plot(df_eq.index, df_eq[eq], label=eq, linestyle='--', linewidth=2)
-    ax2.set_title(f'{selected_unit} Equipment Load Profile on {selected_date.strftime("%d %b")}', fontsize=14)
-    ax2.set_xlabel('Time of Day')
-    ax2.set_ylabel('Power Consumption (kW)')
-    ax2.grid(True, linestyle='--', alpha=0.5)
-    ax2.set_xticks(df_eq.index[::4])
-    ax2.set_xticklabels([ts.strftime("%d %b (%H:%M)") for ts in df_eq.index[::4]], rotation=45)
-    ax2.legend(loc='upper left')
-    st.pyplot(fig2)
+    eq_col1, eq_col2 = st.columns([3, 1])
+    with eq_col1:
+        fig2, ax2 = plt.subplots(figsize=(10, 5))
+        for eq in equipment_list:
+            ax2.plot(df_eq.index, df_eq[eq], label=eq, linestyle='--', linewidth=2)
+        ax2.set_title(f'{selected_unit} Equipment Load Profile on {selected_date.strftime("%d %b")}', fontsize=14)
+        ax2.set_xlabel('Time of Day')
+        ax2.set_ylabel('Power Consumption (kW)')
+        ax2.grid(True, linestyle='--', alpha=0.5)
+        ax2.set_xticks(df_eq.index[::4])
+        ax2.set_xticklabels([ts.strftime("%d %b (%H:%M)") for ts in df_eq.index[::4]], rotation=45)
+        ax2.legend(loc='upper left')
+        st.pyplot(fig2)
+
+    with eq_col2:
+        load_percent = np.random.uniform(60, 80)
+        unload_percent = 100 - load_percent
+        fig3, ax3 = plt.subplots()
+        ax3.pie([load_percent, unload_percent], labels=['Load', 'Unload'], autopct='%1.1f%%',
+                colors=['#FD5108', '#FFE5CC'], startangle=90)
+        ax3.set_title("Load vs Unload Consumption")
+        st.pyplot(fig3)
