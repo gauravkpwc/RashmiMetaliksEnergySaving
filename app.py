@@ -53,23 +53,42 @@ idle_baseline = df_filtered['Total Load'].min() * 0.95
 peak_indices_total = df_filtered['Total Load'].nlargest(3).index
 valley_indices_total = df_filtered['Total Load'].nsmallest(3).index
 
-# Calculate Power Factor (simulated)
+# Calculate KPIs
 real_power = df_filtered['Total Load'].mean()
 apparent_power = real_power + np.random.normal(loc=20, scale=5)
 power_factor = round(real_power / apparent_power, 2)
+load_std_dev = round(df_filtered['Total Load'].std(), 2)
+load_cv = round((load_std_dev / real_power) * 100, 2)
 
-
-# Display Power Factor card above chart with bold text and light orange background
-st.markdown(
-    f"""
-    <div style='text-align:right; font-size:20px; margin-bottom:20px;
-                background-color:#FFE5CC; padding:10px; border-radius:8px;'>
-        ⚡ <b>Power Factor:</b> <b>{power_factor}</b>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
+# Display KPI cards in a row
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.markdown(
+        f"""
+        <div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>
+            ⚡ <b>Power Factor:</b><br><b>{power_factor}</b>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+with col2:
+    st.markdown(
+        f"""
+        <div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>
+            📊 <b>Load Std Dev (σ):</b><br><b>{load_std_dev} kW</b>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+with col3:
+    st.markdown(
+        f"""
+        <div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>
+            📈 <b>Coeff. of Variation:</b><br><b>{load_cv} %</b>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # PwC-style orange color palette
 orange_palette = {
