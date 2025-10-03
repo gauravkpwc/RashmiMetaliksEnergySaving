@@ -58,10 +58,10 @@ valley_indices_total = df_filtered['Total Load'].nsmallest(3).index
 # KPIs
 real_power = df_filtered['Total Load'].mean()
 apparent_power = real_power + np.random.normal(loc=20, scale=5)
-power_factor = round(real_power / apparent_power, 2)
-load_std_dev = round(df_filtered['Total Load'].std(), 2)
-load_cv = round((load_std_dev / real_power) * 100, 2)
-average_load = round(real_power, 2)
+power_factor = round(real_power / apparent_power, 1)
+load_std_dev = round(df_filtered['Total Load'].std(), 1)
+load_cv = round((load_std_dev / real_power) * 100, 1)
+average_load = round(real_power, 1)
 
 # KPI Cards
 col1, col2, col3, col4 = st.columns(4)
