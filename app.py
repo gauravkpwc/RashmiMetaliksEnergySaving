@@ -105,10 +105,10 @@ st.pyplot(fig)
 
 # Equipment-wise chart
 equipment_map = {
-    'Sintering': ['Compressor', 'Conveyor', 'Burner', 'Fans', 'Blowers'],
-    'Pelletizing': ['Mixer', 'Dryer', 'Conveyor', 'Fans', 'Blowers'],
-    'DRI': ['Reactor', 'Cooler', 'Conveyor', 'Fans', 'Blowers'],
-    'BF': ['Stove', 'Blower', 'Conveyor', 'Fans', 'Crane']
+    'Sintering': ['Conveyor', 'Blower', 'Heater', 'Compressor', 'Pump', 'Burner'],
+    'Pelletizing': ['Conveyor', 'Blower', 'Dryer', 'Compressor', 'Pump', 'Mixer'],
+    'DRI': ['Conveyor', 'Blower', 'Reactor', 'Compressor', 'Pump', 'Cooler'],
+    'BF': ['Conveyor', 'Blower', 'Stove', 'Compressor', 'Pump', 'Crane']
 }
 
 selected_unit = None
