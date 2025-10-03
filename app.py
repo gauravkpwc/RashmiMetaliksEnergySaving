@@ -25,9 +25,8 @@ end_time = datetime.combine(selected_date, datetime.min.time()) + timedelta(hour
 time_index = pd.date_range(start=start_time, end=end_time, freq='15T')
 data_length = len(time_index)
 
-# Seed based on selected date to regenerate data
-seed_value = int(selected_date.strftime("%Y%m%d"))
-np.random.seed(seed_value)
+# Seed based on date for reproducibility
+np.random.seed(selected_date.day + selected_date.month + selected_date.year)
 
 # Simulated power consumption data
 sintering = np.random.normal(loc=180, scale=20, size=data_length)
@@ -62,14 +61,17 @@ apparent_power = real_power + np.random.normal(loc=20, scale=5)
 power_factor = round(real_power / apparent_power, 2)
 load_std_dev = round(df_filtered['Total Load'].std(), 2)
 load_cv = round((load_std_dev / real_power) * 100, 2)
+average_load = round(real_power, 2)
 
 # KPI Cards
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.markdown(f"<div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>⚡ <b>Power Factor:</b><br><b>{power_factor}</b></div>", unsafe_allow_html=True)
 with col2:
-    st.markdown(f"<div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>📊 <b>Load Std Dev (σ):</b><br><b>{load_std_dev} kW</b></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>📦 <b>Average Load:</b><br><b>{average_load} kW</b></div>", unsafe_allow_html=True)
 with col3:
+    st.markdown(f"<div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>📊 <b>Load Std Dev (σ):</b><br><b>{load_std_dev} kW</b></div>", unsafe_allow_html=True)
+with col4:
     st.markdown(f"<div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>📈 <b>Coeff. of Variation:</b><br><b>{load_cv} %</b></div>", unsafe_allow_html=True)
 
 # PwC-style colors
@@ -150,10 +152,6 @@ if selected_unit:
         st.pyplot(fig2)
 
     with eq_col2:
-        if selected_equipment == "All":
-            total_load = df_eq.sum(axis=1).mean()
-        else:
-            total_load = df_eq[selected_equipment].mean()
         load_percent = np.random.uniform(60, 80)
         unload_percent = 100 - load_percent
         fig3, ax3 = plt.subplots()
