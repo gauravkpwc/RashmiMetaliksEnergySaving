@@ -62,3 +62,4 @@ ax.legend(loc='upper left')
 fig.autofmt_xdate()
 
 # Display the chart in Streamlit
+st.pyplot(fig)
