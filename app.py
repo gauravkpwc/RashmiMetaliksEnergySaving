@@ -24,7 +24,7 @@ departments = ['Sintering', 'Pelletizing', 'DRI', 'BF']
 selected_departments = st.sidebar.multiselect("Select Departments", departments, default=departments)
 
 # Generate time index based on selected date and time range
-time_index = [datetime.combine(selected_date, datetime.min.time()) + timedelta(hours=h) for h in range(start_hour, end_hour + 1)]
+time_index = [datetime.combine(selected_date, "(" + datetime.min.time()) + timedelta(hours=h) for h in range(start_hour, end_hour + 1) + ")"]
 
 # Simulated power consumption data (in kW) for each process
 np.random.seed(42)
