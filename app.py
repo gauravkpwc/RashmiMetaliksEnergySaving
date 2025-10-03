@@ -5,10 +5,10 @@ import numpy as np
 from datetime import datetime, timedelta
 
 # Set page configuration
-st.set_page_config(page_title="Load Profile Chart", layout="wide")
+st.set_page_config(page_title="Load Profile Dashboard", layout="wide")
 
 # Title
-st.markdown("<h1 style='text-align: center;'>🔧 Load Profile Chart - Rashmi Metaliks</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🔧 Load Profile Dashboard - Rashmi Metaliks</h1>", unsafe_allow_html=True)
 
 # Sidebar filters
 with st.sidebar:
@@ -24,7 +24,7 @@ start_time = datetime.combine(selected_date, datetime.min.time()) + timedelta(ho
 end_time = datetime.combine(selected_date, datetime.min.time()) + timedelta(hours=end_hour)
 time_index = pd.date_range(start=start_time, end=end_time, freq='15T')
 
-# Simulated power consumption data (in kW) for each process
+# Simulated power consumption data
 np.random.seed(42)
 data_length = len(time_index)
 sintering = np.random.normal(loc=180, scale=20, size=data_length)
@@ -32,7 +32,7 @@ pelletizing = np.random.normal(loc=150, scale=15, size=data_length)
 dri = np.random.normal(loc=200, scale=25, size=data_length)
 bf = np.random.normal(loc=220, scale=30, size=data_length)
 
-# Combine into a DataFrame
+# Combine into DataFrame
 df = pd.DataFrame({
     'Time': time_index,
     'Sintering': sintering,
@@ -49,91 +49,88 @@ df_filtered = df[selected_departments]
 df_filtered['Total Load'] = df_filtered.sum(axis=1)
 idle_baseline = df_filtered['Total Load'].min() * 0.95
 
-# Identify top 3 peaks and bottom 3 valleys for total load
+# Identify peaks and valleys
 peak_indices_total = df_filtered['Total Load'].nlargest(3).index
 valley_indices_total = df_filtered['Total Load'].nsmallest(3).index
 
-# Calculate KPIs
+# KPIs
 real_power = df_filtered['Total Load'].mean()
 apparent_power = real_power + np.random.normal(loc=20, scale=5)
 power_factor = round(real_power / apparent_power, 2)
 load_std_dev = round(df_filtered['Total Load'].std(), 2)
 load_cv = round((load_std_dev / real_power) * 100, 2)
 
-# Display KPI cards in a row
+# KPI Cards
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.markdown(
-        f"""
-        <div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>
-            ⚡ <b>Power Factor:</b><br><b>{power_factor}</b>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>⚡ <b>Power Factor:</b><br><b>{power_factor}</b></div>", unsafe_allow_html=True)
 with col2:
-    st.markdown(
-        f"""
-        <div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>
-            📊 <b>Load Std Dev (σ):</b><br><b>{load_std_dev} kW</b>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>📊 <b>Load Std Dev (σ):</b><br><b>{load_std_dev} kW</b></div>", unsafe_allow_html=True)
 with col3:
-    st.markdown(
-        f"""
-        <div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>
-            📈 <b>Coeff. of Variation:</b><br><b>{load_cv} %</b>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div style='background-color:#FFE5CC; padding:10px; border-radius:8px; text-align:center; font-size:18px;'>📈 <b>Coeff. of Variation:</b><br><b>{load_cv} %</b></div>", unsafe_allow_html=True)
 
-# PwC-style orange color palette
+# PwC-style colors
 orange_palette = {
-    'Total Load': '#FD5108',       # Dark orange
+    'Total Load': '#FD5108',
     'Sintering': '#5C6975',
     'Pelletizing': '#FF7216',
     'DRI': '#0308DB',
     'BF': '#D2990C'
 }
 
-# Plotting
+# Main Chart
 fig, ax = plt.subplots(figsize=(14, 7))
-ax.plot(df_filtered.index, df_filtered['Total Load'], label='Total Load',
-        color=orange_palette['Total Load'], linewidth=2)
-
-# Fill idle load baseline
+ax.plot(df_filtered.index, df_filtered['Total Load'], label='Total Load', color=orange_palette['Total Load'], linewidth=2)
 ax.fill_between(df_filtered.index, 0, idle_baseline, color='gray', alpha=0.3, label='Idle Load Baseline')
-
-# Highlight top 3 peaks and bottom 3 valleys for total load (no legend)
 marker_size_total = int(60 * 0.6)
-ax.scatter(peak_indices_total, df_filtered.loc[peak_indices_total, 'Total Load'],
-           color='red', zorder=5, s=marker_size_total)
-ax.scatter(valley_indices_total, df_filtered.loc[valley_indices_total, 'Total Load'],
-           color='red', zorder=5, s=marker_size_total)
+ax.scatter(peak_indices_total, df_filtered.loc[peak_indices_total, 'Total Load'], color='red', zorder=5, s=marker_size_total)
+ax.scatter(valley_indices_total, df_filtered.loc[valley_indices_total, 'Total Load'], color='red', zorder=5, s=marker_size_total)
 
-# Add individual process lines and highlight their peaks/valleys
 marker_size_process = int(40 * 0.6)
 for dept in selected_departments:
-    ax.plot(df_filtered.index, df_filtered[dept], label=dept,
-            linestyle='--', alpha=0.9, linewidth=2, color=orange_palette.get(dept, '#FFA07A'))
+    ax.plot(df_filtered.index, df_filtered[dept], label=dept, linestyle='--', alpha=0.9, linewidth=2, color=orange_palette.get(dept, '#FFA07A'))
     peak_indices = df_filtered[dept].nlargest(3).index
     valley_indices = df_filtered[dept].nsmallest(3).index
     ax.scatter(peak_indices, df_filtered.loc[peak_indices, dept], color='red', zorder=5, s=marker_size_process)
     ax.scatter(valley_indices, df_filtered.loc[valley_indices, dept], color='red', zorder=5, s=marker_size_process)
 
-# Formatting
 ax.set_title(f'Load Profile on {selected_date.strftime("%d %b")} ({start_hour}:00 to {end_hour}:00)', fontsize=16)
 ax.set_xlabel('Time of Day')
 ax.set_ylabel('Power Consumption (kW)')
 ax.grid(True, linestyle='--', alpha=0.5)
 ax.set_xticks(df_filtered.index[::4])
 ax.set_xticklabels([ts.strftime('%d %b (%H:%M)') for ts in df_filtered.index[::4]], rotation=45)
-
-# Keep legend inside chart area
 ax.legend(loc='upper left')
-
-# Display the chart
 st.pyplot(fig)
+
+# Equipment-wise chart
+equipment_map = {
+    'Sintering': ['Compressor', 'Conveyor', 'Burner', 'Fans', 'Blowers'],
+    'Pelletizing': ['Mixer', 'Dryer', 'Conveyor', 'Fans', 'Blowers'],
+    'DRI': ['Reactor', 'Cooler', 'Conveyor', 'Fans', 'Blowers'],
+    'BF': ['Stove', 'Blower', 'Conveyor', 'Fans', 'Crane']
+}
+
+selected_unit = None
+if len(selected_departments) == 1:
+    selected_unit = selected_departments[0]
+elif len(selected_departments) > 1:
+    selected_unit = st.selectbox("Select Unit for Equipment View", selected_departments)
+
+if selected_unit:
+    st.markdown(f"<h3 style='text-align: center;'>🔍 Equipment-wise Load Profile - {selected_unit}</h3>", unsafe_allow_html=True)
+    equipment_list = equipment_map.get(selected_unit, [])
+    equipment_data = {eq: np.random.normal(loc=40, scale=10, size=data_length) for eq in equipment_list}
+    df_eq = pd.DataFrame(equipment_data, index=time_index)
+
+    fig2, ax2 = plt.subplots(figsize=(14, 6))
+    for eq in equipment_list:
+        ax2.plot(df_eq.index, df_eq[eq], label=eq, linestyle='--', linewidth=2)
+    ax2.set_title(f'{selected_unit} Equipment Load Profile on {selected_date.strftime("%d %b")}', fontsize=14)
+    ax2.set_xlabel('Time of Day')
+    ax2.set_ylabel('Power Consumption (kW)')
+    ax2.grid(True, linestyle='--', alpha=0.5)
+    ax2.set_xticks(df_eq.index[::4])
+    ax2.set_xticklabels([ts.strftime("%d %b (%H:%M)") for ts in df_eq.index[::4]], rotation=45)
+    ax2.legend(loc='upper left')
+    st.pyplot(fig2)
