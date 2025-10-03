@@ -118,16 +118,24 @@ elif len(selected_departments) > 1:
     selected_unit = st.selectbox("Select Unit for Equipment View", selected_departments)
 
 if selected_unit:
-    st.markdown(f"<h3 style='text-align: center;'>🔍 Equipment-wise Load Profile - {selected_unit}</h3>", unsafe_allow_html=True)
     equipment_list = equipment_map.get(selected_unit, [])
+    selected_equipment = st.selectbox("Select Equipment", ["All"] + equipment_list)
+
+    st.markdown(f"<h3 style='text-align: center;'>🔍 Equipment-wise Load Profile - {selected_unit}</h3>", unsafe_allow_html=True)
+
+    # Simulate equipment data dynamically
+    np.random.seed(42)
     equipment_data = {eq: np.random.normal(loc=40, scale=10, size=data_length) for eq in equipment_list}
     df_eq = pd.DataFrame(equipment_data, index=time_index)
 
-    eq_col1, eq_col2 = st.columns([2.5, 1.5])
+    eq_col1, eq_col2 = st.columns([3, 1])
     with eq_col1:
         fig2, ax2 = plt.subplots(figsize=(10, 5))
-        for eq in equipment_list:
-            ax2.plot(df_eq.index, df_eq[eq], label=eq, linestyle='--', linewidth=2)
+        if selected_equipment == "All":
+            for eq in equipment_list:
+                ax2.plot(df_eq.index, df_eq[eq], label=eq, linestyle='--', linewidth=2)
+        else:
+            ax2.plot(df_eq.index, df_eq[selected_equipment], label=selected_equipment, linestyle='--', linewidth=2)
         ax2.set_title(f'{selected_unit} Equipment Load Profile on {selected_date.strftime("%d %b")}', fontsize=14)
         ax2.set_xlabel('Time of Day')
         ax2.set_ylabel('Power Consumption (kW)')
@@ -138,6 +146,10 @@ if selected_unit:
         st.pyplot(fig2)
 
     with eq_col2:
+        if selected_equipment == "All":
+            total_load = df_eq.sum(axis=1).mean()
+        else:
+            total_load = df_eq[selected_equipment].mean()
         load_percent = np.random.uniform(60, 80)
         unload_percent = 100 - load_percent
         fig3, ax3 = plt.subplots()
