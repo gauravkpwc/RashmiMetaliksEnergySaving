@@ -69,8 +69,8 @@ ax.plot(df_filtered.index, df_filtered['Total Load'], label='Total Load', color=
 ax.fill_between(df_filtered.index, 0, idle_baseline, color='gray', alpha=0.3, label='Idle Load Baseline')
 
 # Highlight top 3 peaks and bottom 3 valleys for total load
-ax.scatter(peak_indices_total, df_filtered.loc[peak_indices_total, 'Total Load'], color='red', label='Total Load Peaks', zorder=5, s=60)
-ax.scatter(valley_indices_total, df_filtered.loc[valley_indices_total, 'Total Load'], color='red', label='Total Load Valleys', zorder=5, s=60)
+ax.scatter(peak_indices_total, df_filtered.loc[peak_indices_total, 'Total Load'], color='red', label='Total Load Peaks', zorder=5, s=30)
+ax.scatter(valley_indices_total, df_filtered.loc[valley_indices_total, 'Total Load'], color='red', label='Total Load Valleys', zorder=5, s=30)
 
 # Add individual process lines and highlight their peaks/valleys
 for dept in selected_departments:
